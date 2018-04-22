@@ -1,3 +1,6 @@
+import isEqual from 'lodash.isequal'
+
+
 const defaultState = {
         state: {
         connected: false,
@@ -56,8 +59,19 @@ const receivedDeviceProperties = (state, device, deviceProperties) => {
     return {...state, properties, values };
 }
 
-const indiPropertyUpdated = (state, property) => {
-    return {...state, properties: {...state.properties, [property.id]: pureProperty(property) }, values: {...state.values, [property.id]: buildValues(property) } }
+const indiPropertyUpdated = (state, updatedProperty) => {
+    let newState = state;
+    let property = pureProperty(updatedProperty)
+    let values = buildValues(updatedProperty)
+    if(! isEqual(state.properties[property.id], property)) {
+        console.log("updating property:")
+        console.log(state.properties[property.id])
+        console.log(property);
+        newState = {...newState, properties: {...newState.properties, [property.id]: property} };
+    }
+    if(! isEqual(state.values[property.id], values))
+        newState = {...newState, values: {...newState.values, [property.id]: values } }
+    return newState
 };
 
 const indiPropertyAdded = (state, property) => {

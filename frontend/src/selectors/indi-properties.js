@@ -6,6 +6,7 @@ export const getDeviceIds = state => state.indiserver.devices;
 export const getDeviceEntities = state => state.indiserver.deviceEntities;
 export const getVisibleDevice = state => state.navigation.indi.device;
 export const getVisibleGroup = state => state.navigation.indi.group ? state.navigation.indi.group : 'Main Control';
+export const getMessages = state => state.indiserver.messages
 
 export const getDeviceNames = createSelector([getDeviceIds, getDeviceEntities], (deviceIds, devices) => {
     return deviceIds.map(id => ({ id, name: devices[id].name }))
@@ -20,6 +21,7 @@ export const getVisibleProperties = createSelector([getVisibleDeviceProperties, 
 )
 
 export const getVisibleGroups = createSelector([getVisibleDeviceProperties], properties => {
+    console.log('**** recomputing groups')
     let groups = properties.map(p => p.group);
     groups = groups.filter((group, index) => groups.indexOf(group) === index)
     return groups;
@@ -47,3 +49,7 @@ export const getDevicesConnection = createSelector([getDeviceIds, getDevicesProp
         return {...acc, [deviceID]: !! propertyValues.values.CONNECT && propertyValues.values.CONNECT.value}
     }, {});
 });
+
+export const getDevicesMessages = createSelector([getDeviceIds, getMessages], (devices, messages) =>
+    devices.reduce( (acc, device) => ({...acc, [device]: messages.filter(m => m.device === device)}), {})
+)
