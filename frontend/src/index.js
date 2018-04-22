@@ -22,7 +22,7 @@ const loggerMiddleware = createLogger()
 
 let store = createStore(
     indiLiteApp,
-    window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__(),
+//    window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__(),
     applyMiddleware(thunkMiddleware, loggerMiddleware)
 )
 store.dispatch(Actions.Sequences.fetch())
