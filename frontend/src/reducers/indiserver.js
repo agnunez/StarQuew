@@ -26,24 +26,42 @@ const receivedServerState = (state, action) => {
 
 const arrayToObjectById = array => array.reduce( (obj, element) => ({...obj, [element.id]: element}), {});
 
+const pureProperty = propertyWithValues => {
+    let property = {...propertyWithValues}
+    delete property.values;
+    return property;
+}
+
+const buildValues = (property) => {
+    if(! property.values || property.values.length === 0) {
+        return { propertyName: property.name, property: property.id, names: [], values: {}}
+    }
+    return {
+        property: property.id,
+        propertyName: property.name,
+        names: property.values.map(v => v.name),
+        values: property.values.reduce( (acc, value) => ({...acc, [value.name]: value}), {}),
+    }
+}
+
 const receivedDeviceProperties = (state, device, deviceProperties) => {
     let properties = {...state.properties}
     let values = {...state.values}
 
     deviceProperties.forEach(property => {
-        properties[property.id] = property
-        values[property.id] = property.values
+        properties[property.id] = pureProperty(property),
+        values[property.id] = buildValues(property)
     })
 
     return {...state, properties, values };
 }
 
 const indiPropertyUpdated = (state, property) => {
-    return {...state, properties: {...state.properties, [property.id]: property }, values: {...state.values, [property.id]: property.values } }
+    return {...state, properties: {...state.properties, [property.id]: pureProperty(property) }, values: {...state.values, [property.id]: buildValues(property) } }
 };
 
 const indiPropertyAdded = (state, property) => {
-    return {...state, properties: {...state.properties, [property.id]: property}, values: {...state.values, [property.id]: property.values } };
+    return {...state, properties: {...state.properties, [property.id]: pureProperty(property)}, values: {...state.values, [property.id]: buildValues(property) } };
 };
 
 const indiPropertyRemoved = (state, property) => {

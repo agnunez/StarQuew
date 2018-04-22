@@ -1,6 +1,7 @@
 import { createSelector } from 'reselect'
 
 export const getProperties = state => state.indiserver.properties;
+export const getValues = state => state.indiserver.values;
 export const getDeviceIds = state => state.indiserver.devices;
 export const getDeviceEntities = state => state.indiserver.deviceEntities;
 export const getVisibleDevice = state => state.navigation.indi.device;
@@ -33,9 +34,16 @@ export const getDevicesProperties = createSelector([getDeviceIds, getProperties]
     } , {})
 )
 
-export const getDevicesConnectionState = createSelector([getDevicesProperties], (devicesProperties) => 
-    Object.keys(devicesProperties).reduce( (mapping, id) => ({
-        ...mapping,
-        [id]: 'CONNECTION' in devicesProperties[id] && !! devicesProperties[id].CONNECTION.values.find(v => v.name === 'CONNECT' && v.value) 
-    }), {})
-)
+
+export const getDevicesConnection = createSelector([getDeviceIds, getDevicesProperties, getValues], (deviceIds, devicesProperties, values) => {
+    return deviceIds.reduce( (acc, deviceID) =>  {
+        if(!(deviceID in devicesProperties))
+            return {...acc, [deviceID]: false};
+        let deviceProperties = devicesProperties[deviceID]
+        if(! ('CONNECTION' in deviceProperties))
+            return {...acc, [deviceID]: false};
+        let connectionProperty = deviceProperties.CONNECTION;
+        let propertyValues = values[connectionProperty.id];
+        return {...acc, [deviceID]: !! propertyValues.values.CONNECT && propertyValues.values.CONNECT.value}
+    }, {});
+});

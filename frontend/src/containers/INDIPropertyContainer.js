@@ -18,7 +18,8 @@ const mapStateToProps = (state, ownProps) => {
     let property = ownProps.property;
     let device = state.indiserver.deviceEntities[property.device];
     let pendingValues = property.id in state.indiserver.pendingValues ? state.indiserver.pendingValues[property.id] : {};
-    let displayValues = property.values.reduce( (displayValues, value) => ({...displayValues, [value.name]: value.value}), {});
+    let values = state.indiserver.values[property.id];
+    let displayValues = values.names.reduce( (displayValues, valueName) => ({...displayValues, [valueName]: values.values[valueName].value}), {});
     Object.keys(pendingValues).forEach(name => displayValues[name] = pendingValues[name]);
     return {
         device,
@@ -26,6 +27,7 @@ const mapStateToProps = (state, ownProps) => {
         isWriteable: property.perm_write && property.state !== 'CHANGED_BUSY' && ! ownProps.readOnly,
         pendingValues,
         displayValues,
+        values,
     }
 }
 
